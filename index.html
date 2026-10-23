@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prime_bogdan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0d0204;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 15px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Анимированный Canvas фон */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Аватарка в красном неоновом круге */
+        .avatar-wrapper {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            padding: 4px;
+            background: linear-gradient(135deg, #ff0033, #990000);
+            box-shadow: 0 0 25px rgba(255, 0, 51, 0.6), 0 0 50px rgba(153, 0, 0, 0.4);
+            margin-bottom: 5px;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            border: 3px solid #0d0204;
+        }
+
+        .username {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 0, 51, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #ff7675;
+            margin-bottom: 10px;
+        }
+
+        /* Кнопки соцсетей */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn {
+            background: rgba(20, 5, 8, 0.6);
+            border: 1px solid rgba(255, 0, 51, 0.25);
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s;
+            backdrop-filter: blur(8px);
+        }
+
+        .btn:hover {
+            background: rgba(255, 0, 51, 0.25);
+            border-color: #ff0033;
+            box-shadow: 0 0 15px rgba(255, 0, 51, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Карточки с информацией */
+        .card {
+            width: 100%;
+            background: rgba(20, 5, 8, 0.65);
+            border: 1px solid rgba(255, 0, 51, 0.2);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: left;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 14px;
+            color: #ff4d4d;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-text {
+            color: #d1d5db;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Теги (бабблы) */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            background: rgba(255, 0, 51, 0.08);
+            border: 1px solid rgba(255, 0, 51, 0.25);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            color: #f3f4f6;
+            transition: 0.2s;
+        }
+
+        .tag:hover {
+            border-color: #ff0033;
+            background: rgba(255, 0, 51, 0.2);
+        }
+
+        /* Проекты */
+        .projects-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .project-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 3px solid #ff0033;
+            padding-left: 12px;
+            color: #d1d5db;
+            font-size: 0.95rem;
+        }
+
+        .project-item strong {
+            color: #ffffff;
+        }
+
+        /* Блок доната */
+        .donate-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 0, 51, 0.2);
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 12px;
+        }
+
+        .donate-label {
+            font-size: 0.85rem;
+            color: #ff7675;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: bold;
+        }
+
+        .copy-input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .copy-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 0, 51, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+            color: #ffffff;
+            font-family: monospace;
+            font-size: 0.95rem;
+        }
+
+        .copy-btn {
+            background: rgba(255, 0, 51, 0.25);
+            border: 1px solid #ff0033;
+            color: #ffffff;
+            padding: 0 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .copy-btn:hover {
+            background: #ff0033;
+            box-shadow: 0 0 10px rgba(255, 0, 51, 0.5);
+        }
+
+        .donate-note {
+            font-size: 0.88rem;
+            color: #9ca3af;
+            text-align: center;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+
+        .donate-footer {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #ff0033;
+            margin-top: 12px;
+        }
+
+        /* In Memoriam / Мем */
+        .memorial-box {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px dashed rgba(255, 0, 51, 0.25);
+        }
+
+        .memorial-icon {
+            font-size: 2.2rem;
+            color: #6b7280;
+        }
+
+        .memorial-info h4 {
+            font-size: 1rem;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .memorial-date {
+            font-size: 0.78rem;
+            color: #ff0033;
+            margin-bottom: 6px;
+        }
+
+        .memorial-desc {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            line-height: 1.4;
+        }
+
+        .quote-footer {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #6b7280;
+            font-style: italic;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        /* Уведомление */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            background: #ff0033;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 0 15px rgba(255, 0, 51, 0.5);
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Фон с дрейфующими красными частицами -->
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="container">
+        <!-- Аватарка -->
+        <div class="avatar-wrapper">
+            <img src="аватар.jpg" onerror="this.onerror=null; this.src='avatar.jpg';" alt="Prime_bogdan" class="avatar-img">
+        </div>
+
+        <!-- Имя -->
+        <h1 class="username">Prime_bogdan</h1>
+        <div class="subtitle">coder | content creator | artist</div>
+
+        <!-- Кнопки соцсетей -->
+        <div class="grid">
+            <a href="https://t.me/Prime_bogdan" target="_blank" class="btn">
+                <i class="fa-brands fa-telegram"></i> Telegram
+            </a>
+            <div class="btn" onclick="copyText('kalligraff', 'Discord тег скопирован!')">
+                <i class="fa-brands fa-discord"></i> Discord
+            </div>
+            <a href="https://www.tiktok.com/@kalligraf_yt" target="_blank" class="btn">
+                <i class="fa-brands fa-tiktok"></i> TikTok
+            </a>
+            <a href="https://www.youtube.com/@Kalligraf_yt" target="_blank" class="btn">
+                <i class="fa-brands fa-youtube"></i> YouTube
+            </a>
+        </div>
+
+        <!-- Обо мне -->
+        <div class="card">
+            <div class="card-title">
+                <i class="fa-solid fa-user"></i> Обо мне
+            </div>
+            <div class="card-text">
+                Кодер, создатель контента, артист. Пишу скрипты и Telegram-ботов, занимаюсь музыкой, видеомонтажом и настройкой серверов.
+            </div>
+        </div>
+
+        <!-- Чё я знаю -->
+        <div class="card">
+            <div class="card-title">
+                <i class="fa-solid fa-code"></i> Чё я знаю
+            </div>
+            <div class="tags">
+                <span class="tag">Python</span>
+                <span class="tag">Aiogram</span>
+                <span class="tag">Telebot</span>
+                <span class="tag">HTML/CSS</span>
+                <span class="tag">Git</span>
+                <span class="tag">SQL</span>
+                <span class="tag">Linux</span>
+                <span class="tag">Bash</span>
+            </div>
+        </div>
+
+        <!-- Работал с -->
+        <div class="card">
+            <div class="card-title">
+                <i class="fa-solid fa-laptop"></i> Работал с
+            </div>
+            <div class="tags">
+                <span class="tag">Ubuntu</span>
+                <span class="tag">Debian</span>
+                <span class="tag">FL Studio</span>
+                <span class="tag">RouteNote</span>
+                <span class="tag">VS Code</span>
+                <span class="tag">MS Access</span>
+                <span class="tag">GitHub Pages</span>
+            </div>
+        </div>
+
+        <!-- Основные направления -->
+        <div class="card">
+            <div class="card-title">
+                <i class="fa-solid fa-compass"></i> Основные направления
+            </div>
+            <div class="tags">
+                <span class="tag">Разработка Telegram ботов</span>
+                <span class="tag">Создание и дистрибуция музыки</span>
+                <span class="tag">Создание контента (TikTok / YouTube)</span>
+                <span class="tag">Настройка и деплой VPS серверов</span>
+            </div>
+        </div>
+
+        <!-- Мои проекты -->
+        <div class="card">
+            <div class="card-title">
+                <i class="fa-solid fa-folder-open"></i> Мои проекты
+            </div>
+            <div class="projects-list">
+                <div class="project-item">
+                    <i class="fa-brands fa-telegram"></i>
+                    <span><strong>Telegram Bot</strong> — Многофункциональный бот на Python, запущенный на VPS 24/7.</span>
+                </div>
+                <div class="project-item">
+                    <i class="fa-solid fa-music"></i>
+                    <span><strong>Музыкальные релизы</strong> — Треки, дистрибутированные на стриминговые сервисы.</span>
+                </div>
+                <div class="project-item">
+                    <i class="fa-solid fa-globe"></i>
+                    <span><strong>Personal Portfolio</strong> — Персональный веб-сайт на GitHub Pages.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Поддержать донатом -->
+        <div class="card">
+            <div class="card-title">
+                <i class="fa-solid fa-heart"></i> Поддержать донатом
+            </div>
+            
+            <div class="donate-box">
+                <div class="donate-label">
+                    <i class="fa-solid fa-credit-card"></i> Карта ПриватБанк
+                </div>
+                <div class="copy-input-group">
+                    <input type="text" class="copy-input" value="5168752029296764" readonly>
+                    <button class="copy-btn" onclick="copyText('5168752029296764', 'Карта скопирована!')">
+                        <i class="fa-regular fa-copy"></i> Копировать
+                    </button>
+                </div>
+            </div>
+
+            <div class="donate-note">
+                Если хотите поддержать другим донатом — пишите в Telegram <a href="https://t.me/Prime_bogdan" target="_blank" style="color: #ff7675; text-decoration: none; font-weight: bold;">@Prime_bogdan</a>
+            </div>
+
+            <div class="donate-footer">
+                🛡️ Любая сумма важна ❤️
+            </div>
+        </div>
+
+        <!-- In Memoriam -->
+        <div class="card">
+            <div class="card-title" style="color: #ff7675; font-size: 1rem;">
+                <i class="fa-solid fa-microchip"></i> in memoriam
+            </div>
+            <div class="memorial-box">
+                <i class="fa-solid fa-desktop memorial-icon"></i>
+                <div class="memorial-info">
+                    <h4>Raspberry Pi 4B 8GB</h4>
+                    <div class="memorial-date">● 02.06.2026</div>
+                    <div class="memorial-desc">
+                        Погибла смертью храбрых — приняла 5V на 3.3V линию. Сгорела, но не сдалась. Спи спокойно, малинка.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="quote-footer">
+            "Неблагодарность убивает энтузиазм... Навсегда!"
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Скопировано!</div>
+
+    <script>
+        // Скопировать текст
+        function copyText(text, message) {
+            navigator.clipboard.writeText(text).then(function() {
+                var toast = document.getElementById("toast");
+                toast.innerText = message;
+                toast.classList.add("show");
+                setTimeout(function() {
+                    toast.classList.remove("show");
+                }, 2000);
+            });
+        }
+
+        // Анимация плавающих плазменных/неоновых частиц на фоне
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const particles = [];
+        const particleCount = 45;
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + Math.random() * 100;
+                this.radius = Math.random() * 30 + 10;
+                this.speedY = Math.random() * 0.8 + 0.3;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.35 + 0.1;
+            }
+
+            update() {
+                this.y -= this.speedY;
+                this.x += Math.sin(this.y * 0.01) * 0.4 + this.speedX;
+
+                if (this.y < -this.radius * 2) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                const gradient = ctx.createRadialGradient(
+                    this.x, this.y, 0,
+                    this.x, this.y, this.radius
+                );
+                gradient.addColorStop(0, `rgba(255, 0, 51, ${this.opacity})`);
+                gradient.addColorStop(0.6, `rgba(180, 0, 30, ${this.opacity * 0.4})`);
+                gradient.addColorStop(1, 'rgba(13, 2, 4, 0)');
+
+                ctx.fillStyle = gradient;
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            const p = new Particle();
+            p.y = Math.random() * canvas.height;
+            particles.push(p);
+        }
+
+        function animate() {
+            ctx.fillStyle = '#0d0204';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
